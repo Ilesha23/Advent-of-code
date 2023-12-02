@@ -1,59 +1,53 @@
 fun main(args: Array<String>) {
     var sum = 0
     var sumPowers = 0
-    val names = mapOf(
+    val namesToMaxNumbers = mapOf(
         "red" to 12,
         "green" to 13,
         "blue" to 14
     )
-    puzzle.lines()
-        .associate { line ->
-            var (game, result) = line.split(": ")
-            val number = game.split(" ").last().toInt()
-            val sets = result.split("; ")
-            val isPossible = sets.all { set ->
-                val balls = set.replace(", ", "\n")
-                val set = balls.lines()
+    puzzle.lines() // goes through each line of puzzle
+        .associate { line -> // makes map
+            val (game, result) = line.split(": ") // game to its result
+            val number = game.split(" ").last().toInt() // number of the game
+            val sets = result.split("; ") // sets of the game
+            val isPossible = sets.all { set -> // checks all sets and returns Boolean
+                val linesOfSet = set.replace(", ", "\n") // converts set to lines of each color and count
+                val colorToCount = linesOfSet.lines() // goes through each line of set
                     .associate { line ->
                         val color = line.split(" ").last()
                         val count = line.split(" ").first().toInt()
-                        color to count
+                        color to count // makes map of color and count of each line of set
                     }
-                set.all { (color, count) ->
-                    count <= (names[color] ?: 0)
+                colorToCount.all { (color, count) -> // checks if all counts are possible and returns Boolean
+                    count <= (namesToMaxNumbers[color] ?: 0)
                 }
             }
-            if (isPossible) sum += number
+            if (isPossible) sum += number // finds sum of games numbers
 
-            val colorCounts = result.split(";").map { set ->
+            val colorCounts = sets.map { set -> // list of lists of color to count pairs
                 set.trim().split(", ").map { entry ->
-                    val count = entry.split(" ")[0].toInt()
-                    val color = entry.split(" ")[1]
+                    val count = entry.split(" ").first().toInt()
+                    val color = entry.split(" ").last()
                     color to count
                 }
             }
-                .flatten()
-                .groupBy({ it.first }, { it.second })
-                .mapValues { (_, counts) ->
+                .flatten() // makes one list of all lists above
+                .groupBy({ it.first }, { it.second }) // groups them by color
+                .mapValues { (_, counts) -> // returns map of max color counts
                     counts.maxOrNull() ?: 0
                 }
             var power = 1
-            colorCounts.forEach { _, count ->
+            colorCounts.forEach { (_, count) -> // finds power of all counts for each color
                 power *= count
             }
-            sumPowers += power
+            sumPowers += power // finds sum of all powers above
 
             number to sets
         }
-    println(sumPowers)
-    println(sum)
+    println(sumPowers) // sum of powers of max counts in each game
+    println(sum) // sum of possible games numbers
 }
-
-//const val puzzle = """Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-//Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-//Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-//Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-//Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"""
 
 const val puzzle = """Game 1: 1 blue, 8 green; 14 green, 15 blue; 3 green, 9 blue; 8 green, 8 blue, 1 red; 1 red, 9 green, 10 blue
 Game 2: 3 blue, 1 green, 2 red; 2 red, 2 green, 5 blue; 3 green, 10 blue; 8 red, 1 blue; 3 red, 1 green, 5 blue; 1 blue, 5 red, 3 green

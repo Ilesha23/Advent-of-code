@@ -1,6 +1,7 @@
 fun main(args: Array<String>) {
     val array = puzzle.lines().toTypedArray()
     task1(array)
+    array.mapIndexed { index, s ->  }
 }
 
 fun task1(array: Array<String>) {
